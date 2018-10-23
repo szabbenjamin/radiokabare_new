@@ -1,0 +1,29 @@
+{
+  "name": "radiokabare_new",
+  "version": "1.0.0",
+  "description": "radiokabare letolto masodik kiadas",
+  "main": "main.js",
+  "scripts": {
+    "start": "tsc main.ts; node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/szabbenjamin/radiokabare_new.git"
+  },
+  "author": "Benjamin Szabo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/szabbenjamin/radiokabare_new/issues"
+  },
+  "homepage": "https://github.com/szabbenjamin/radiokabare_new#readme",
+  "dependencies": {
+    "@types/node": "^10.12.0",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "https": "^1.0.0",
+    "jquery": "^3.3.1",
+    "jsdom": "^12.2.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  }
+}
