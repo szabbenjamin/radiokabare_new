@@ -1,8 +1,7 @@
 import * as request from 'request-promise';
 import * as jQuery from 'jquery';
 import * as jsdom from 'jsdom';
-import * as https from 'https';
-import * as fs from 'fs';
+import { exec } from 'child_process';
 
 const $ = jQuery(new jsdom.JSDOM().window);
 
@@ -34,7 +33,7 @@ class KossuthParser {
         this.wantedShows = wantedShows;
         this.grabShows();
     }
-    
+
     private grabShows() : void {
         this.getSelectedShows(this.wantedShows).then(selectedShows => {
             selectedShows.forEach(show => {
@@ -44,14 +43,14 @@ class KossuthParser {
         });
     }
 
-    downloadShow(show : ShowInterface) : void {
+    private downloadShow(show : ShowInterface) : void {
         const startDate : DateTimeInterface = this.getDateTime(show.startDate),
               endDate : DateTimeInterface   = this.getDateTime(show.endDate);
 
-        const file = fs.createWriteStream(`downloads/${startDate.year}${startDate.month}${startDate.days}_${startDate.hours}${startDate.minutes}00_1.mp3`);
-        const request = https.get(`https://hangtar-cdn.connectmedia.hu/${startDate.year}${startDate.month}${startDate.days}${startDate.hours}${startDate.minutes}00/${endDate.year}${endDate.month}${endDate.days}${endDate.hours}${endDate.minutes}00/mr1.mp3`, response => {
-            response.pipe(file);
-        });
+        const streamUrl = `https://hangtar-cdn.connectmedia.hu/${startDate.year}${startDate.month}${startDate.days}${startDate.hours}${startDate.minutes}00/${endDate.year}${endDate.month}${endDate.days}${endDate.hours}${endDate.minutes}00/mr1.mp3`;
+        const file = `../podcast/radiokabare/${startDate.year}${startDate.month}${startDate.days}_${startDate.hours}${startDate.minutes}00_1.mp3`;
+
+        exec(`wget ${streamUrl} -O ${file}`);
     }
 
     private getDateTime(currDate : Date) : DateTimeInterface {
@@ -102,7 +101,7 @@ class KossuthParser {
             'Content-Type' : 'application/x-www-form-urlencoded'
         };
 
-        return this.request(musorUrl, headers)
+        return this.request(this.renderEpgUrl(), headers)
             .then(body => {
                 let shows : Array<ShowInterface> = [];
 
@@ -167,11 +166,24 @@ class KossuthParser {
     private getSelectedShows(wantedShows : Array<string>) {
         const selectedShows : Array<ShowInterface> = [];
 
+        // Keresés a már eddig be grub-elt műsorok között név szerint
+        const showIsExist = showName => {
+            for (let i = 0; i < selectedShows.length; i++) {
+                if (selectedShows[i].name === showName) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
         return this.loadShows().then(shows => {
             (<Array<ShowInterface>> shows).forEach(show => {
                 wantedShows.forEach(wantedElement => {
                     if (show.name.indexOf(wantedElement) != -1) {
-                        selectedShows.push(show);
+                        // duplikáció kiszűrése
+                        if (!showIsExist(wantedElement)) {
+                            selectedShows.push(show);
+                        }
                     }
                 });
             });

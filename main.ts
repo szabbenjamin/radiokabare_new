@@ -1,8 +1,7 @@
 import KossuthParser from './kossuthParser';
 
 const shows : Array<string> = [
-    'Rádiókabaré',
-    'Kabarématiné'
+    'Kabaré'
 ];
 
-new KossuthParser(new Date('2018-10-13'), shows);
+new KossuthParser(new Date(), shows);
